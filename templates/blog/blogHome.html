@@ -1,13 +1,5 @@
 {% extends 'base.html'%}
 {%block title%} Blog{%endblock title%}
-{%block js%}
-<script>
-    Let previews = document.getElementsByClassName('preview');
-    Array.from(previews).forEach((element)=>{
-        element.innerHTML = element.innerText;
-    });
-</script>
-{%endblock js%}
 {% block blogactive %} active {% endblock blogactive %}
 
 {%block body%}
