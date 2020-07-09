@@ -1,0 +1,87 @@
+{% extends 'base.html'%}
+{%block title%} Blog Post {%endblock title%}
+{% block blogactive %} active {% endblock blogactive %}
+{%block body%}
+{% load humanize %}
+{% load extras %}
+<div class="container my-3">
+	<div class="blog-post">
+		<h2 class="blog-post-title">{{post.title}}</h2>
+		<p class="blog-post-meta">{{post.datetime}} by <a href="/about">{{post.author}}</a></p>
+		<p>{{post.content|safe}}</p>
+	</div>
+	<hr>
+</div>
+<div class="container">
+	<h3>Comments:{{comments.count}}</h3>
+	<div class="my-2">
+		<form action="/blog/postComment" method="POST">
+			{%if user.is_authenticated %}
+			{% csrf_token %}
+			<div class="form-group">
+				<label for="exampleInputEmail1">Post Comment</label>
+				<input type="text" class="form-control" name="comment" id="comment" aria-describedby="emailHelp" placeholder=""
+					Enter comment">
+			</div>
+			<input type="hidden" name="postSno" value="{{post.sno}}">
+			<input type="hidden" name="parentSno" value=" ">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+		{% else %}
+		<p><strong>Login First</strong></p>
+	</div>
+	{% endif %}
+	{% for comment in comments %}
+	<div class="row my-3">
+		<div class="col-md-1 bg-">
+			<div class="text-center">
+				<img src="/static/user-alt-512.png" class="rounded" width="50" height="50" alt="...">
+			  </div>
+		</div>
+		<div class="col-md-11 bg-"><b>{{comment.user.username}}</b> {{comment.datetime | naturaltime}}
+			<div>{{comment.comment}}</div>
+			<div class="reply mx-0">
+				{%if user.is_authenticated %}
+				<button class="btn btn-sm btn-primary" type="button" data-toggle="collapse"
+					data-target="#replyBox{{comment.sno}}" aria-expanded="false" aria-controls="collapseExample">
+					Reply
+				</button>
+				<div class="collapse" id="replyBox{{comment.sno}}">
+					<div class="card card-body my-2">
+						<form action="/blog/postComment" method="POST">
+							{% csrf_token %}
+							<div class="form-group">
+								<label for="exampleInputEmail1">Post Reply</label>
+								<input type="text" class="form-control" name="comment" id="comment" aria-describedby="emailHelp"
+									placeholder="" Enter comment">
+								<input type="hidden" name="parentSno" value="{{comment.sno}}">
+							</div>
+							<input type="hidden" name="postSno" value="{{post.sno}}">
+							<button type="submit" class="btn btn-primary">Submit</button>
+						</form>
+					</div>
+				</div>	
+				{% else %}<p><strong>Login First</strong></p>
+				{% endif %}
+				<div class="replies my-3">
+						{% for reply in replyDict|get_val:comment.sno %}
+						<div class="row my-3">
+								<div class="col-md-1 bg-">
+									<img src="/static/user-alt-512.png" class="rounded" width="50" height="50" alt="...">
+								</div>
+								<div class="col-md-11"> 
+									<!--{{reply.comment}}-->
+									<b>{{reply.user.username}}</b> {{reply.datetime | naturaltime}}
+									<div>{{reply.comment}}</div>
+								</div>
+								<br>
+						</div>
+						{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+
+{%endblock body%}
